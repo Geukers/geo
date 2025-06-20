@@ -1,17 +1,17 @@
 [workspace]
 resolver = "2"
 members = [
-  "geo",
-  "geo-bool-ops-benches",
-  "geo-postgis",
-  "geo-test-fixtures",
-  "geo-traits",
-  "geo-types",
-  "jts-test-runner",
+  # "geo",
+  # "geo-bool-ops-benches",
+  # "geo-postgis",
+  # "geo-test-fixtures",
+  # "geo-traits",
+  "geo-types-3d",
+  # "jts-test-runner",
 ]
 
 [patch.crates-io]
 
 # Ensure any transitive dependencies also use the local geo/geo-types
-geo = { path = "geo" }
-geo-types = { path = "geo-types" }
+# geo = { path = "geo" }
+geo-types-3d = { path = "geo-types-3d" }

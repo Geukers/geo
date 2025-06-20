@@ -118,6 +118,7 @@ impl<T: CoordNum> Debug for Geometry<T> {
             Geometry::MultiPointZ(multi_point_z) => multi_point_z.fmt(f),
             Geometry::MultiLineStringZ(multi_line_string_z) => multi_line_string_z.fmt(f),
             Geometry::MultiPolygonZ(multi_polygon_z) => multi_polygon_z.fmt(f),
+            Geometry::Rect(rect) => rect.fmt(f),
         }
     }
 }

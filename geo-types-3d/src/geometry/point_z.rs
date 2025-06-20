@@ -2,45 +2,46 @@ use crate::{pointZ, CoordFloat, CoordNum, CoordZ};
 
 use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
-/// A single point in 2D space.
+/// A single point in 3D space.
 ///
 /// # Semantics
 ///
 /// The _interior_ of the point is itself (a singleton set),
 /// and its _boundary_ is empty. A point is _valid_ if and
-/// only if the `Coord` is valid.
+/// only if the `CoordZ` is valid.
 ///
-/// # Creating a Point
+/// # Creating a PointZ
 ///
 /// There are many ways to construct a point.
 /// ```
-/// use geo_types::{coord, point, Point};
+/// use geo_types_3d::{coordZ, pointZ, PointZ};
 ///
-/// let p1 = Point::new(0., 1.);
+/// let p1 = PointZ::new(0., 1., 2.);
 ///
-/// let p2 = point! { x: 1000.0, y: 2000.0 };
+/// let p2 = pointZ! { x: 1000.0, y: 2000.0, z: 3000.0 };
 ///
-/// let p3: Point = (0., 1.).into();
+/// let p3: PointZ = (0., 1., 2.).into();
 ///
-/// let c = coord! { x: 10., y: 20. };
-/// let p4: Point = c.into();
+/// let c = coordZ! { x: 10., y: 20., z: 30. };
+/// let p4: PointZ = c.into();
 /// ```
 ///
 /// See the `From` impl section for a complete list of conversions.
 ///
 /// ## Coordinate order for geographic points
 ///
-/// For geographic points, typically `x` corresponds to longitude and `y` to latitude.
+/// For geographic points, typically `x` corresponds to longitude, `y` to latitude, and `z` to altitude.
 ///
 /// Geographic methods in the [`geo`](https://crates.io/crates/geo) crate expect this common
-/// lon/lat order, but different conventions exist in other coordinate systems,
+/// lon/lat/alt order, but different conventions exist in other coordinate systems,
 /// notably EPSG:4326, which uses lat/lon ordering.
 /// ```
-/// use geo_types::{coord, point, Point};
+/// use geo_types_3d::{coordZ, pointZ, PointZ};
 ///
 /// let lon = 179.9;
 /// let lat = 45.0;
-/// let geographic_point = Point::new(lon, lat);
+/// let alt = 10.0;
+/// let geographic_point = PointZ::new(lon, lat, alt);
 /// ```
 ///
 #[derive(Eq, PartialEq, Clone, Copy, Hash, Default)]
@@ -83,12 +84,13 @@ impl<T: CoordNum> PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let p = Point::new(1.234, 2.345);
+    /// let p = PointZ::new(1.234, 2.345, 3.456);
     ///
     /// assert_eq!(p.x(), 1.234);
     /// assert_eq!(p.y(), 2.345);
+    /// assert_eq!(p.z(), 3.456);
     /// ```
     pub fn new(x: T, y: T, z: T) -> Self {
         pointZ! { x: x, y: y , z: z}
@@ -102,9 +104,9 @@ impl<T: CoordNum> PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let p = Point::new(1.234, 2.345);
+    /// let p = PointZ::new(1.234, 2.345, 3.456);
     ///
     /// assert_eq!(p.x(), 1.234);
     /// ```
@@ -120,9 +122,9 @@ impl<T: CoordNum> PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let mut p = Point::new(1.234, 2.345);
+    /// let mut p = PointZ::new(1.234, 2.345, 3.456);
     /// p.set_x(9.876);
     ///
     /// assert_eq!(p.x(), 9.876);
@@ -141,8 +143,8 @@ impl<T: CoordNum> PointZ<T> {
     ///
     /// ```
     /// use approx::assert_relative_eq;
-    /// use geo_types::Point;
-    /// let mut p = Point::new(1.234, 2.345);
+    /// use geo_types_3d::PointZ;
+    /// let mut p = PointZ::new(1.234, 2.345, 3.456);
     /// let mut p_x = p.x_mut();
     /// *p_x += 1.0;
     /// assert_relative_eq!(p.x(), 2.234);
@@ -159,32 +161,14 @@ impl<T: CoordNum> PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let p = Point::new(1.234, 2.345);
+    /// let p = PointZ::new(1.234, 2.345, 3.456);
     ///
     /// assert_eq!(p.y(), 2.345);
     /// ```
     pub fn y(self) -> T {
         self.0.y
-    }
-
-    /// Returns the y/vertical component of the point.
-    ///
-    /// Typically, `y` is the vertical position, or latitude for geographic coordinates,
-    /// but its interpretation can vary across coordinate systems.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use geo_types::Point;
-    ///
-    /// let p = Point::new(1.234, 2.345);
-    ///
-    /// assert_eq!(p.y(), 2.345);
-    /// ```
-    pub fn z(self) -> T {
-        self.0.z
     }
 
     /// Sets the y/vertical component of the point.
@@ -195,9 +179,9 @@ impl<T: CoordNum> PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let mut p = Point::new(1.234, 2.345);
+    /// let mut p = PointZ::new(1.234, 2.345, 3.456);
     /// p.set_y(9.876);
     ///
     /// assert_eq!(p.y(), 9.876);
@@ -216,8 +200,8 @@ impl<T: CoordNum> PointZ<T> {
     ///
     /// ```
     /// use approx::assert_relative_eq;
-    /// use geo_types::Point;
-    /// let mut p = Point::new(1.234, 2.345);
+    /// use geo_types_3d::PointZ;
+    /// let mut p = PointZ::new(1.234, 2.345, 3.456);
     /// let mut p_y = p.y_mut();
     /// *p_y += 1.0;
     /// assert_relative_eq!(p.y(), 3.345);
@@ -226,34 +210,93 @@ impl<T: CoordNum> PointZ<T> {
         &mut self.0.y
     }
 
-    /// Returns a tuple that contains the x/horizontal & y/vertical component of the point.
+    /// Returns the z/height component of the point.
+    ///
+    /// Typically, `z` is the height position, or altitude for geographic coordinates,
+    /// but its interpretation can vary across coordinate systems.
     ///
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let mut p = Point::new(1.234, 2.345);
-    /// let (x, y) = p.x_y();
+    /// let p = PointZ::new(1.234, 2.345, 3.456);
     ///
-    /// assert_eq!(y, 2.345);
+    /// assert_eq!(p.z(), 3.456);
+    /// ```
+    pub fn z(self) -> T {
+        self.0.z
+    }
+
+    /// Sets the z/height component of the point.
+    ///
+    /// Typically, `z` is the height position, or altitude for geographic coordinates,
+    /// but its interpretation can vary across coordinate systems.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use geo_types_3d::PointZ;
+    ///
+    /// let mut p = PointZ::new(1.234, 2.345, 3.456);
+    /// p.set_z(9.876);
+    ///
+    /// assert_eq!(p.z(), 9.876);
+    /// ```
+    pub fn set_z(&mut self, z: T) -> &mut Self {
+        self.0.z = z;
+        self
+    }
+
+    /// Returns a mutable reference to the x/horizontal component of the point
+    ///
+    /// Typically, `z` is the height position, or altitude for geographic coordinates,
+    /// but its interpretation can vary across coordinate systems.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use approx::assert_relative_eq;
+    /// use geo_types_3d::PointZ;
+    /// let mut p = PointZ::new(1.234, 2.345, 3.456);
+    /// let mut p_z = p.z_mut();
+    /// *p_z += 1.0;
+    /// assert_relative_eq!(p.z(), 4.456);
+    /// ```
+    pub fn z_mut(&mut self) -> &mut T {
+        &mut self.0.z
+    }
+
+    /// Returns a tuple that contains the x/horizontal & y/vertical & z/height component of the point.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use geo_types_3d::PointZ;
+    ///
+    /// let mut p = PointZ::new(1.234, 2.345, 3.456);
+    /// let (x, y, z) = p.x_y_z();
+    ///
+    /// assert_eq!(z, 3.456);
     /// assert_eq!(x, 1.234);
+    /// assert_eq!(y, 2.345);
     /// ```
     pub fn x_y_z(self) -> (T, T, T) {
         (self.0.x, self.0.y, self.0.z)
     }
+
     /// Returns the longitude/horizontal component of the point.
     ///
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let p = Point::new(1.234, 2.345);
+    /// let p = PointZ::new(1.234, 2.345, 3.456);
     ///
     /// assert_eq!(p.x(), 1.234);
     /// ```
-    #[deprecated = "use `Point::x` instead, it's less ambiguous"]
+    #[deprecated = "use `PointZ::x` instead, it's less ambiguous"]
     pub fn lng(self) -> T {
         self.x()
     }
@@ -263,15 +306,15 @@ impl<T: CoordNum> PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let mut p = Point::new(1.234, 2.345);
+    /// let mut p = PointZ::new(1.234, 2.345, 3.456);
     /// #[allow(deprecated)]
     /// p.set_lng(9.876);
     ///
     /// assert_eq!(p.x(), 9.876);
     /// ```
-    #[deprecated = "use `Point::set_x` instead, it's less ambiguous"]
+    #[deprecated = "use `PointZ::set_x` instead, it's less ambiguous"]
     pub fn set_lng(&mut self, lng: T) -> &mut Self {
         self.set_x(lng)
     }
@@ -281,51 +324,89 @@ impl<T: CoordNum> PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let p = Point::new(1.234, 2.345);
+    /// let p = PointZ::new(1.234, 2.345, 3.456);
     ///
     /// assert_eq!(p.y(), 2.345);
     /// ```
-    #[deprecated = "use `Point::y` instead, it's less ambiguous"]
+    #[deprecated = "use `PointZ::y` instead, it's less ambiguous"]
     pub fn lat(self) -> T {
         self.y()
     }
+
     /// Sets the latitude/vertical component of the point.
     ///
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let mut p = Point::new(1.234, 2.345);
+    /// let mut p = PointZ::new(1.234, 2.345, 3.456);
     /// #[allow(deprecated)]
     /// p.set_lat(9.876);
     ///
     /// assert_eq!(p.y(), 9.876);
     /// ```
-    #[deprecated = "use `Point::set_y` instead, it's less ambiguous"]
+    #[deprecated = "use `PointZ::set_y` instead, it's less ambiguous"]
     pub fn set_lat(&mut self, lat: T) -> &mut Self {
         self.set_y(lat)
     }
-}
 
-impl<T: CoordNum> PointZ<T> {
-    /// Returns the dot product of the two points:
-    /// `dot = x1 * x2 + y1 * y2`
+    /// Sets the altitude/height component of the point.
     ///
     /// # Examples
     ///
     /// ```
-    /// use geo_types::{point, Point};
+    /// use geo_types_3d::PointZ;
     ///
-    /// let point = point! { x: 1.5, y: 0.5 };
-    /// let dot = point.dot(point! { x: 2.0, y: 4.5 });
+    /// let mut p = PointZ::new(1.234, 2.345, 3.456);
+    /// #[allow(deprecated)]
+    /// p.set_alt(9.876);
     ///
-    /// assert_eq!(dot, 5.25);
+    /// assert_eq!(p.z(), 9.876);
+    /// ```
+    /// 
+    /// 
+    #[deprecated = "use `PointZ::set_z` instead, it's less ambiguous"]
+    pub fn set_alt(&mut self, alt: T) -> &mut Self {
+        self.set_z(alt)
+    }
+
+    /// Returns the altitude/height component of the point.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use geo_types_3d::PointZ;
+    ///
+    /// let p = PointZ::new(1.234, 2.345, 3.456);
+    ///
+    /// assert_eq!(p.z(), 3.456);
+    /// ```
+    #[deprecated = "use `PointZ::z` instead, it's less ambiguous"]
+    pub fn alt(self) -> T {
+        self.z()
+    }
+
+}
+
+impl<T: CoordNum> PointZ<T> {
+    /// Returns the dot product of the two points:
+    /// `dot = x1 * x2 + y1 * y2 + z1 * z2`
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use geo_types_3d::{pointZ, PointZ};
+    ///
+    /// let point = pointZ! { x: 1.5, y: 0.5, z: 2.0 };
+    /// let dot = point.dot(pointZ! { x: 2.0, y: 4.5, z: 1.0 });
+    ///
+    /// assert_eq!(dot, 7.25);
     /// ```
     pub fn dot(self, other: Self) -> T {
-        self.x() * other.x() + self.y() * other.y()
+        self.x() * other.x() + self.y() * other.y() + self.z() * other.z()
     }
 
     /// Returns the cross product of 3 points. A positive value implies
@@ -343,15 +424,15 @@ impl<T: CoordNum> PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::point;
+    /// use geo_types_3d::pointZ;
     ///
-    /// let point_a = point! { x: 1., y: 2. };
-    /// let point_b = point! { x: 3., y: 5. };
-    /// let point_c = point! { x: 7., y: 12. };
+    /// let point_a = pointZ! { x: 1., y: 2., z: 3.};
+    /// let point_b = pointZ! { x: 3., y: 5., z: 7. };
+    /// let point_c = pointZ! { x: 7., y: 12., z: 15. };
     ///
     /// let cross = point_a.cross_prod(point_b, point_c);
     ///
-    /// assert_eq!(cross, 2.0)
+    /// assert_eq!(cross, 2.0);
     /// ```
     pub fn cross_prod(self, point_b: Self, point_c: Self) -> T {
         (point_b.x() - self.x()) * (point_c.y() - self.y())
@@ -360,16 +441,17 @@ impl<T: CoordNum> PointZ<T> {
 }
 
 impl<T: CoordFloat> PointZ<T> {
-    /// Converts the (x,y) components of Point to degrees
+    /// Converts the (x,y,z) components of PointZ to degrees
     ///
     /// # Example
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let p = Point::new(1.234, 2.345);
-    /// let (x, y): (f32, f32) = p.to_degrees().x_y();
+    /// let p = PointZ::new(1.234, 2.345, 3.456);
+    /// let (x, y, z): (f32, f32, f32) = p.to_degrees().x_y_z();
     /// assert_eq!(x.round(), 71.0);
     /// assert_eq!(y.round(), 134.0);
+    /// assert_eq!(z.round(), 198.0);
     /// ```
     pub fn to_degrees(self) -> Self {
         let (x, y, z) = self.x_y_z();
@@ -379,16 +461,17 @@ impl<T: CoordFloat> PointZ<T> {
         PointZ::new(x, y, z)
     }
 
-    /// Converts the (x,y) components of Point to radians
+    /// Converts the (x,y,z) components of PointZ to radians
     ///
     /// # Example
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let p = Point::new(180.0, 341.5);
-    /// let (x, y): (f32, f32) = p.to_radians().x_y();
+    /// let p = PointZ::new(180.0, 341.5, 115.0);
+    /// let (x, y, z): (f32, f32, f32) = p.to_radians().x_y_z();
     /// assert_eq!(x.round(), 3.0);
     /// assert_eq!(y.round(), 6.0);
+    /// assert_eq!(z.round(), 2.0);
     /// ```
     pub fn to_radians(self) -> Self {
         let (x, y, z) = self.x_y_z();
@@ -405,17 +488,18 @@ where
 {
     type Output = Self;
 
-    /// Returns a point with the x and y components negated.
+    /// Returns a point with the x, y and z components negated.
     ///
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let p = -Point::new(-1.25, 2.5);
+    /// let p = -PointZ::new(-1.25, 2.5, 3.5);
     ///
     /// assert_eq!(p.x(), 1.25);
     /// assert_eq!(p.y(), -2.5);
+    /// assert_eq!(p.z(), -3.5);
     /// ```
     fn neg(self) -> Self::Output {
         PointZ::from(-self.0)
@@ -430,12 +514,13 @@ impl<T: CoordNum> Add for PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let p = Point::new(1.25, 2.5) + Point::new(1.5, 2.5);
+    /// let p = PointZ::new(1.25, 2.5, 3.5) + PointZ::new(1.5, 2.5, 3.5);
     ///
     /// assert_eq!(p.x(), 2.75);
     /// assert_eq!(p.y(), 5.0);
+    /// assert_eq!(p.z(), 7.0);
     /// ```
     fn add(self, rhs: Self) -> Self::Output {
         PointZ::from(self.0 + rhs.0)
@@ -448,13 +533,14 @@ impl<T: CoordNum> AddAssign for PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let mut p = Point::new(1.25, 2.5);
-    /// p += Point::new(1.5, 2.5);
+    /// let mut p = PointZ::new(1.25, 2.5, 3.5);
+    /// p += PointZ::new(1.5, 2.5, 3.5);
     ///
     /// assert_eq!(p.x(), 2.75);
     /// assert_eq!(p.y(), 5.0);
+    /// assert_eq!(p.z(), 7.0);
     /// ```
     fn add_assign(&mut self, rhs: Self) {
         self.0 = self.0 + rhs.0;
@@ -469,12 +555,13 @@ impl<T: CoordNum> Sub for PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let p = Point::new(1.25, 3.0) - Point::new(1.5, 2.5);
+    /// let p = PointZ::new(1.25, 3.0, 4.0) - PointZ::new(1.5, 2.5, 1.0);
     ///
     /// assert_eq!(p.x(), -0.25);
     /// assert_eq!(p.y(), 0.5);
+    /// assert_eq!(p.z(), 3.0);
     /// ```
     fn sub(self, rhs: Self) -> Self::Output {
         PointZ::from(self.0 - rhs.0)
@@ -487,13 +574,14 @@ impl<T: CoordNum> SubAssign for PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let mut p = Point::new(1.25, 2.5);
-    /// p -= Point::new(1.5, 2.5);
+    /// let mut p = PointZ::new(1.25, 2.5, 3.0);
+    /// p -= PointZ::new(1.5, 2.5, 1.0);
     ///
     /// assert_eq!(p.x(), -0.25);
     /// assert_eq!(p.y(), 0.0);
+    /// assert_eq!(p.z(), 2.0);
     /// ```
     fn sub_assign(&mut self, rhs: Self) {
         self.0 = self.0 - rhs.0;
@@ -508,12 +596,13 @@ impl<T: CoordNum> Mul<T> for PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let p = Point::new(2.0, 3.0) * 2.0;
+    /// let p = PointZ::new(2.0, 3.0, 4.0) * 2.0;
     ///
     /// assert_eq!(p.x(), 4.0);
     /// assert_eq!(p.y(), 6.0);
+    /// assert_eq!(p.z(), 8.0);
     /// ```
     fn mul(self, rhs: T) -> Self::Output {
         PointZ::from(self.0 * rhs)
@@ -526,13 +615,14 @@ impl<T: CoordNum> MulAssign<T> for PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let mut p = Point::new(2.0, 3.0);
+    /// let mut p = PointZ::new(2.0, 3.0, 4.0);
     /// p *= 2.0;
     ///
     /// assert_eq!(p.x(), 4.0);
     /// assert_eq!(p.y(), 6.0);
+    /// assert_eq!(p.z(), 8.0);
     /// ```
     fn mul_assign(&mut self, rhs: T) {
         self.0 = self.0 * rhs
@@ -547,12 +637,13 @@ impl<T: CoordNum> Div<T> for PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let p = Point::new(2.0, 3.0) / 2.0;
+    /// let p = PointZ::new(2.0, 3.0, 4.0) / 2.0;
     ///
     /// assert_eq!(p.x(), 1.0);
     /// assert_eq!(p.y(), 1.5);
+    /// assert_eq!(p.z(), 2.0);
     /// ```
     fn div(self, rhs: T) -> Self::Output {
         PointZ::from(self.0 / rhs)
@@ -565,13 +656,14 @@ impl<T: CoordNum> DivAssign<T> for PointZ<T> {
     /// # Examples
     ///
     /// ```
-    /// use geo_types::Point;
+    /// use geo_types_3d::PointZ;
     ///
-    /// let mut p = Point::new(2.0, 3.0);
+    /// let mut p = PointZ::new(2.0, 3.0, 4.0);
     /// p /= 2.0;
     ///
     /// assert_eq!(p.x(), 1.0);
     /// assert_eq!(p.y(), 1.5);
+    /// assert_eq!(p.z(), 2.0);
     /// ```
     fn div_assign(&mut self, rhs: T) {
         self.0 = self.0 / rhs
@@ -597,10 +689,10 @@ mod approx_integration {
         /// # Examples
         ///
         /// ```
-        /// use geo_types::Point;
+        /// use geo_types_3d::PointZ;
         ///
-        /// let a = Point::new(2.0, 3.0);
-        /// let b = Point::new(2.0, 3.01);
+        /// let a = PointZ::new(2.0, 3.0);
+        /// let b = PointZ::new(2.0, 3.01);
         ///
         /// approx::assert_relative_eq!(a, b, max_relative=0.1)
         /// ```
@@ -631,10 +723,10 @@ mod approx_integration {
         /// # Examples
         ///
         /// ```
-        /// use geo_types::Point;
+        /// use geo_types_3d::PointZ;
         ///
-        /// let a = Point::new(2.0, 3.0);
-        /// let b = Point::new(2.0, 3.0000001);
+        /// let a = PointZ::new(2.0, 3.0);
+        /// let b = PointZ::new(2.0, 3.0000001);
         ///
         /// approx::assert_relative_eq!(a, b, epsilon=0.1)
         /// ```
@@ -660,22 +752,23 @@ mod approx_integration {
 
 #[cfg(feature = "rstar_0_8")]
 // These are required for rstar RTree
-impl<T> ::rstar_0_8::Point for PointZ<T>
+impl<T> ::rstar_0_8::PointZ for PointZ<T>
 where
     T: ::num_traits::Float + ::rstar_0_8::RTreeNum,
 {
     type Scalar = T;
 
-    const DIMENSIONS: usize = 2;
+    const DIMENSIONS: usize = 3;
 
     fn generate(generator: impl Fn(usize) -> Self::Scalar) -> Self {
-        PointZ::new(generator(0), generator(1))
+        PointZ::new(generator(0), generator(1), generator(2))
     }
 
     fn nth(&self, index: usize) -> Self::Scalar {
         match index {
             0 => self.0.x,
             1 => self.0.y,
+            2 => self.0.z,
             _ => unreachable!(),
         }
     }
@@ -683,106 +776,20 @@ where
         match index {
             0 => &mut self.0.x,
             1 => &mut self.0.y,
+            2 => &mut self.0.z,
             _ => unreachable!(),
         }
     }
 }
 
 #[cfg(feature = "rstar_0_9")]
-impl<T> ::rstar_0_9::Point for PointZ<T>
+impl<T> ::rstar_0_9::PointZ for PointZ<T>
 where
     T: ::num_traits::Float + ::rstar_0_9::RTreeNum,
 {
     type Scalar = T;
 
-    const DIMENSIONS: usize = 2;
-
-    fn generate(mut generator: impl FnMut(usize) -> Self::Scalar) -> Self {
-        PointZ::new(generator(0), generator(1))
-    }
-
-    fn nth(&self, index: usize) -> Self::Scalar {
-        match index {
-            0 => self.0.x,
-            1 => self.0.y,
-            _ => unreachable!(),
-        }
-    }
-    fn nth_mut(&mut self, index: usize) -> &mut Self::Scalar {
-        match index {
-            0 => &mut self.0.x,
-            1 => &mut self.0.y,
-            _ => unreachable!(),
-        }
-    }
-}
-
-#[cfg(feature = "rstar_0_10")]
-impl<T> ::rstar_0_10::Point for PointZ<T>
-where
-    T: ::num_traits::Float + ::rstar_0_10::RTreeNum,
-{
-    type Scalar = T;
-
-    const DIMENSIONS: usize = 2;
-
-    fn generate(mut generator: impl FnMut(usize) -> Self::Scalar) -> Self {
-        PointZ::new(generator(0), generator(1))
-    }
-
-    fn nth(&self, index: usize) -> Self::Scalar {
-        match index {
-            0 => self.0.x,
-            1 => self.0.y,
-            _ => unreachable!(),
-        }
-    }
-    fn nth_mut(&mut self, index: usize) -> &mut Self::Scalar {
-        match index {
-            0 => &mut self.0.x,
-            1 => &mut self.0.y,
-            _ => unreachable!(),
-        }
-    }
-}
-
-#[cfg(feature = "rstar_0_11")]
-impl<T> ::rstar_0_11::Point for PointZ<T>
-where
-    T: ::num_traits::Float + ::rstar_0_11::RTreeNum,
-{
-    type Scalar = T;
-
-    const DIMENSIONS: usize = 2;
-
-    fn generate(mut generator: impl FnMut(usize) -> Self::Scalar) -> Self {
-        PointZ::new(generator(0), generator(1))
-    }
-
-    fn nth(&self, index: usize) -> Self::Scalar {
-        match index {
-            0 => self.0.x,
-            1 => self.0.y,
-            _ => unreachable!(),
-        }
-    }
-    fn nth_mut(&mut self, index: usize) -> &mut Self::Scalar {
-        match index {
-            0 => &mut self.0.x,
-            1 => &mut self.0.y,
-            _ => unreachable!(),
-        }
-    }
-}
-
-#[cfg(feature = "rstar_0_12")]
-impl<T> ::rstar_0_12::Point for PointZ<T>
-where
-    T: ::num_traits::Float + ::rstar_0_12::RTreeNum,
-{
-    type Scalar = T;
-
-    const DIMENSIONS: usize = 2;
+    const DIMENSIONS: usize = 3;
 
     fn generate(mut generator: impl FnMut(usize) -> Self::Scalar) -> Self {
         PointZ::new(generator(0), generator(1), generator(2))
@@ -792,6 +799,7 @@ where
         match index {
             0 => self.0.x,
             1 => self.0.y,
+            2 => self.0.z,
             _ => unreachable!(),
         }
     }
@@ -799,6 +807,100 @@ where
         match index {
             0 => &mut self.0.x,
             1 => &mut self.0.y,
+            2 => &mut self.0.z,
+            _ => unreachable!(),
+        }
+    }
+}
+
+#[cfg(feature = "rstar_0_10")]
+impl<T> ::rstar_0_10::PointZ for PointZ<T>
+where
+    T: ::num_traits::Float + ::rstar_0_10::RTreeNum,
+{
+    type Scalar = T;
+
+    const DIMENSIONS: usize = 3;
+
+    fn generate(mut generator: impl FnMut(usize) -> Self::Scalar) -> Self {
+        PointZ::new(generator(0), generator(1), generator(2))
+    }
+
+    fn nth(&self, index: usize) -> Self::Scalar {
+        match index {
+            0 => self.0.x,
+            1 => self.0.y,
+            2 => self.0.z,
+            _ => unreachable!(),
+        }
+    }
+    fn nth_mut(&mut self, index: usize) -> &mut Self::Scalar {
+        match index {
+            0 => &mut self.0.x,
+            1 => &mut self.0.y,
+            2 => &mut self.0.z,
+            _ => unreachable!(),
+        }
+    }
+}
+
+#[cfg(feature = "rstar_0_11")]
+impl<T> ::rstar_0_11::PointZ for PointZ<T>
+where
+    T: ::num_traits::Float + ::rstar_0_11::RTreeNum,
+{
+    type Scalar = T;
+
+    const DIMENSIONS: usize = 3;
+
+    fn generate(mut generator: impl FnMut(usize) -> Self::Scalar) -> Self {
+        PointZ::new(generator(0), generator(1), generator(2))
+    }
+
+    fn nth(&self, index: usize) -> Self::Scalar {
+        match index {
+            0 => self.0.x,
+            1 => self.0.y,
+            2 => self.0.z,
+            _ => unreachable!(),
+        }
+    }
+    fn nth_mut(&mut self, index: usize) -> &mut Self::Scalar {
+        match index {
+            0 => &mut self.0.x,
+            1 => &mut self.0.y,
+            2 => &mut self.0.z,
+            _ => unreachable!(),
+        }
+    }
+}
+
+#[cfg(feature = "rstar_0_12")]
+impl<T> ::rstar_0_12::PointZ for PointZ<T>
+where
+    T: ::num_traits::Float + ::rstar_0_12::RTreeNum,
+{
+    type Scalar = T;
+
+    const DIMENSIONS: usize = 3;
+
+    fn generate(mut generator: impl FnMut(usize) -> Self::Scalar) -> Self {
+        PointZ::new(generator(0), generator(1), generator(2))
+    }
+
+    fn nth(&self, index: usize) -> Self::Scalar {
+        match index {
+            0 => self.0.x,
+            1 => self.0.y,
+            2 => self.0.z,
+            _ => unreachable!(),
+        }
+    }
+    fn nth_mut(&mut self, index: usize) -> &mut Self::Scalar {
+        match index {
+            0 => &mut self.0.x,
+            1 => &mut self.0.y,
+            2 => &mut self.0.z,
             _ => unreachable!(),
         }
     }
@@ -829,9 +931,17 @@ mod test {
         assert!(p.abs_diff_eq(&p_y, 1e-2));
         assert!(p.abs_diff_ne(&p_y, 1e-12));
 
+        let p_z = PointZ::new(1.0, 1.0, 1.0 + delta);
+        assert!(p.abs_diff_eq(&p_z, 1e-2));
+        assert!(p.abs_diff_ne(&p_z, 1e-12));
+
         let p_xy = PointZ::new(1.0 + delta, 1.0 - delta, 1.0);
         assert!(p.abs_diff_eq(&p_xy, 1e-2));
         assert!(p.abs_diff_ne(&p_xy, 1e-12));
+
+        let p_xyz = PointZ::new(1.0 + delta, 1.0 - delta, 1.0 + delta);
+        assert!(p.abs_diff_eq(&p_xyz, 1e-2));
+        assert!(p.abs_diff_ne(&p_xyz, 1e-12));
 
         let p_inf = PointZ::new(f64::INFINITY, 1., 1.0);
         assert!(p.abs_diff_ne(&p_inf, 1e-2));
@@ -850,9 +960,17 @@ mod test {
         assert!(p.relative_eq(&p_y, 1e-2, 1e-2));
         assert!(p.relative_ne(&p_y, 1e-12, 1e-12));
 
+        let p_z = PointZ::new(1.0, 1.0, 1.0 + delta);
+        assert!(p.relative_eq(&p_z, 1e-2, 1e-2));
+        assert!(p.relative_ne(&p_z, 1e-12, 1e-12));
+
         let p_xy = PointZ::new(1.0 + delta, 1.0 - delta, 1.0);
         assert!(p.relative_eq(&p_xy, 1e-2, 1e-2));
         assert!(p.relative_ne(&p_xy, 1e-12, 1e-12));
+
+        let p_xyz = PointZ::new(1.0 + delta, 1.0 - delta, 1.0 + delta);
+        assert!(p.relative_eq(&p_xyz, 1e-2, 1e-2));
+        assert!(p.relative_ne(&p_xyz, 1e-12, 1e-12));
 
         let p_inf = PointZ::new(f64::INFINITY, 1., 1.0);
         assert!(p.relative_ne(&p_inf, 1e-2, 1e-2));

@@ -7,12 +7,12 @@ pub(crate) mod multi_point_z;
 pub(crate) mod multi_polygon_z;
 pub(crate) mod point_z;
 pub(crate) mod polygon;
-pub(crate) mod cube;
 pub(crate) mod triangle;
 
 // re-export all the geometry variants:
 #[allow(deprecated)]
-pub use coord_z::{CoordZ, Coordinate};
+pub use coord_z::{CoordZ, CoordinateZ};
+use geo_types::Rect;
 pub use geometry_collection::GeometryCollection;
 pub use line_z::LineZ;
 pub use line_string_z::LineStringZ;
@@ -72,7 +72,7 @@ pub enum Geometry<T: CoordNum = f64> {
     MultiPolygon(MultiPolygon<T>),
     MultiPolygonZ(MultiPolygonZ<T>),
     GeometryCollection(GeometryCollection<T>),
-    // Cube(Cube<T>),
+    Rect(Rect<T>),
     // Triangle(Triangle<T>),
 }
 
@@ -309,13 +309,13 @@ where
         Geometry::MultiLineString(_) => type_name::<MultiLineStringZ<T>>(),
         Geometry::MultiPolygon(_) => type_name::<MultiPolygonZ<T>>(),
         Geometry::GeometryCollection(_) => type_name::<GeometryCollection<T>>(),
-        // Geometry::Triangle(_) => type_name::<Triangle<T>>(),
         Geometry::LineZ(_) => type_name::<LineZ<T>>(),
         Geometry::LineStringZ(_) => type_name::<LineStringZ<T>>(),
         Geometry::PolygonZ(_) => type_name::<PolygonZ<T>>(),
         Geometry::MultiPointZ(_) => type_name::<MultiPointZ<T>>(),
         Geometry::MultiLineStringZ(_) => type_name::<MultiLineStringZ<T>>(),
         Geometry::MultiPolygonZ(_) => type_name::<MultiPolygonZ<T>>(),
+        Geometry::Rect(_) => type_name::<Rect<T>>(),
     }
 }
 
@@ -389,52 +389,66 @@ where
 //         }
 //     }
 
-    // impl<T> AbsDiffEq for Geometry<T>
-    // where
-    //     T: CoordNum + AbsDiffEq<Epsilon = T>,
-    // {
-    //     type Epsilon = T;
+//     impl<T> AbsDiffEq for Geometry<T>
+//     where
+//         T: CoordNum + AbsDiffEq<Epsilon = T>,
+//     {
+//         type Epsilon = T;
 
-    //     #[inline]
-    //     fn default_epsilon() -> Self::Epsilon {
-    //         T::default_epsilon()
-    //     }
+//         #[inline]
+//         fn default_epsilon() -> Self::Epsilon {
+//             T::default_epsilon()
+//         }
 
-    //     /// Equality assertion with an absolute limit.
-    //     ///
-    //     /// # Examples
-    //     ///
-    //     /// ```
-    //     /// use geo_types::{Geometry, polygon};
-    //     ///
-    //     /// let a: Geometry<f32> = polygon![(x: 0., y: 0.), (x: 5., y: 0.), (x: 7., y: 9.), (x: 0., y: 0.)].into();
-    //     /// let b: Geometry<f32> = polygon![(x: 0., y: 0.), (x: 5., y: 0.), (x: 7.01, y: 9.), (x: 0., y: 0.)].into();
-    //     ///
-    //     /// approx::assert_abs_diff_eq!(a, b, epsilon=0.1);
-    //     /// approx::assert_abs_diff_ne!(a, b, epsilon=0.001);
-    //     /// ```
-    //     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
-    //         match (self, other) {
-    //             (Geometry::PointZ(g1), Geometry::PointZ(g2)) => g1.abs_diff_eq(g2, epsilon),
-    //             (Geometry::LineZ(g1), Geometry::LineZ(g2)) => g1.abs_diff_eq(g2, epsilon),
-    //             (Geometry::LineStringZ(g1), Geometry::LineStringZ(g2)) => g1.abs_diff_eq(g2, epsilon),
-    //             (Geometry::PolygonZ(g1), Geometry::PolygonZ(g2)) => g1.abs_diff_eq(g2, epsilon),
-    //             (Geometry::MultiPointZ(g1), Geometry::MultiPointZ(g2)) => g1.abs_diff_eq(g2, epsilon),
-    //             (Geometry::MultiLineStringZ(g1), Geometry::MultiLineStringZ(g2)) => {
-    //                 g1.abs_diff_eq(g2, epsilon)
-    //             }
-    //             (Geometry::MultiPolygonZ(g1), Geometry::MultiPolygonZ(g2)) => {
-    //                 g1.abs_diff_eq(g2, epsilon)
-    //             }
-    //             (Geometry::GeometryCollection(g1), Geometry::GeometryCollection(g2)) => {
-    //                 g1.abs_diff_eq(g2, epsilon)
-    //             }
-    //             // (Geometry::Cube(g1), Geometry::Cube(g2)) => g1.abs_diff_eq(g2, epsilon),
-    //             // (Geometry::Triangle(g1), Geometry::Triangle(g2)) => g1.abs_diff_eq(g2, epsilon),
-    //             // (_, _) => false,
-    //         }
-    //     }
-    // }
+//         /// Equality assertion with an absolute limit.
+//         ///
+//         /// # Examples
+//         ///
+//         /// ```
+//         /// use geo_types::{Geometry, polygon};
+//         ///
+//         /// let a: Geometry<f32> = polygon![(x: 0., y: 0.), (x: 5., y: 0.), (x: 7., y: 9.), (x: 0., y: 0.)].into();
+//         /// let b: Geometry<f32> = polygon![(x: 0., y: 0.), (x: 5., y: 0.), (x: 7.01, y: 9.), (x: 0., y: 0.)].into();
+//         ///
+//         /// approx::assert_abs_diff_eq!(a, b, epsilon=0.1);
+//         /// approx::assert_abs_diff_ne!(a, b, epsilon=0.001);
+//         /// ```
+//         fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+//             true
+//             // match (self, other) {
+//             //     (Geometry::Point(g1), Geometry::Point(g2)) => g1.abs_diff_eq(g2, epsilon),
+//             //     (Geometry::Line(g1), Geometry::Line(g2)) => g1.abs_diff_eq(g2, epsilon),
+//             //     (Geometry::LineString(g1), Geometry::LineString(g2)) => {
+//             //         g1.abs_diff_eq(g2, epsilon)
+//             //     }
+//             //     (Geometry::Polygon(g1), Geometry::Polygon(g2)) => g1.abs_diff_eq(g2, epsilon),
+//             //     (Geometry::MultiPolygon(g1), Geometry::MultiPolygon(g2)) => g1.abs_diff_eq(g2, epsilon),
+//             //     (Geometry::MultiPoint(g1), Geometry::MultiPoint(g2)) => {
+//             //         g1.abs_diff_eq(g2, epsilon)
+//             //     }
+//             //     (Geometry::MultiLineString(g1), Geometry::MultiLineString(g2)) => {
+//             //         g1.abs_diff_eq(g2, epsilon)
+//             //     }
+//             //     (Geometry::PointZ(g1), Geometry::PointZ(g2)) => g1.abs_diff_eq(g2, epsilon),
+//             //     (Geometry::LineZ(g1), Geometry::LineZ(g2)) => g1.abs_diff_eq(g2, epsilon),
+//             //     (Geometry::LineStringZ(g1), Geometry::LineStringZ(g2)) => g1.abs_diff_eq(g2, epsilon),
+//             //     (Geometry::PolygonZ(g1), Geometry::PolygonZ(g2)) => g1.abs_diff_eq(g2, epsilon),
+//             //     (Geometry::MultiPointZ(g1), Geometry::MultiPointZ(g2)) => g1.abs_diff_eq(g2, epsilon),
+//             //     (Geometry::MultiLineStringZ(g1), Geometry::MultiLineStringZ(g2)) => {
+//             //         g1.abs_diff_eq(g2, epsilon)
+//             //     }
+//             //     (Geometry::MultiPolygonZ(g1), Geometry::MultiPolygonZ(g2)) => {
+//             //         g1.abs_diff_eq(g2, epsilon)
+//             //     }
+//             //     (Geometry::GeometryCollection(g1), Geometry::GeometryCollection(g2)) => {
+//             //         g1.abs_diff_eq(g2, epsilon)
+//             //     }
+//             //     (Geometry::Rect(g1), Geometry::Rect(g2)) => g1.abs_diff_eq(g2, epsilon),
+//             //     // (Geometry::Triangle(g1), Geometry::Triangle(g2)) => g1.abs_diff_eq(g2, epsilon),
+//             //     // (_, _) => false,
+//             // }
+//         }
+//     }
 
 //     impl<T> UlpsEq for Geometry<T>
 //     where
@@ -492,9 +506,9 @@ where
 //                     g1.ulps_eq(g2, epsilon, max_ulps)
 //                 }
 //                 // (Geometry::Cube(g1), Geometry::Cube(g2)) => g1.ulps_eq(g2, epsilon, max_ulps),
-//                 (Geometry::Triangle(g1), Geometry::Triangle(g2)) => {
-//                     g1.ulps_eq(g2, epsilon, max_ulps)
-//                 }
+//                 // (Geometry::Triangle(g1), Geometry::Triangle(g2)) => {
+//                 //     g1.ulps_eq(g2, epsilon, max_ulps)
+//                 // }
 //                 // mismatched geometry types
 //                 _ => false,
 //             }

@@ -1,11 +1,11 @@
 use crate::{coordZ, CoordNum, PointZ};
 
-/// A lightweight struct used to store coordinates on the 2-dimensional
+/// A lightweight struct used to store coordinates on the 3-dimensional
 /// Cartesian plane.
 ///
-/// Unlike `Point` (which in the future may contain additional information such
+/// Unlike `PointZ` (which in the future may contain additional information such
 /// as an envelope, a precision model, and spatial reference system
-/// information), a `Coord` only contains ordinate values and accessor
+/// information), a `CoordZ` only contains ordinate values and accessor
 /// methods.
 ///
 /// This type implements the [vector space] operations:
@@ -35,7 +35,7 @@ pub struct CoordZ<T: CoordNum = f64> {
 }
 
 #[deprecated(note = "Renamed to `geo_types::Coord` (or `geo::Coord`)")]
-pub type Coordinate<T = f64> = CoordZ<T>;
+pub type CoordinateZ<T = f64> = CoordZ<T>;
 
 impl<T: CoordNum> From<(T, T, T)> for CoordZ<T> {
     #[inline]
@@ -85,21 +85,23 @@ impl<T: CoordNum> From<CoordZ<T>> for [T; 3] {
 }
 
 impl<T: CoordNum> CoordZ<T> {
-    /// Returns a tuple that contains the x/horizontal & y/vertical component of the coordinate.
+    /// Returns a tuple that contains the x/horizontal & y/vertical & z/height component of the coordinate.
     ///
     /// # Examples
     ///
     /// ```
-    /// use geo_types::coord;
+    /// use geo_types_3d::coordZ;
     ///
-    /// let c = coord! {
+    /// let c = coordZ! {
     ///     x: 40.02f64,
     ///     y: 116.34,
+    ///     z: 100.0,
     /// };
-    /// let (x, y) = c.x_y();
+    /// let (x, y, z) = c.x_y_z();
     ///
     /// assert_eq!(y, 116.34);
     /// assert_eq!(x, 40.02f64);
+    /// assert_eq!(z, 100.0);
     /// ```
     #[inline]
     pub fn x_y_z(&self) -> (T, T, T) {
@@ -114,13 +116,14 @@ use core::ops::{Add, Div, Mul, Neg, Sub};
 /// # Examples
 ///
 /// ```
-/// use geo_types::coord;
+/// use geo_types_3d::coordZ;
 ///
-/// let p = coord! { x: 1.25, y: 2.5 };
+/// let p = coordZ! { x: 1.25, y: 2.5, z: 3.0 };
 /// let q = -p;
 ///
 /// assert_eq!(q.x, -p.x);
 /// assert_eq!(q.y, -p.y);
+/// assert_eq!(q.z, -p.z);
 /// ```
 impl<T> Neg for CoordZ<T>
 where
@@ -143,14 +146,15 @@ where
 /// # Examples
 ///
 /// ```
-/// use geo_types::coord;
+/// use geo_types_3d::coordZ;
 ///
-/// let p = coord! { x: 1.25, y: 2.5 };
-/// let q = coord! { x: 1.5, y: 2.5 };
+/// let p = coordZ! { x: 1.25, y: 2.5, z: 3.0 };
+/// let q = coordZ! { x: 1.5, y: 2.5, z: 1.0 };
 /// let sum = p + q;
 ///
 /// assert_eq!(sum.x, 2.75);
 /// assert_eq!(sum.y, 5.0);
+/// assert_eq!(sum.z, 4.0);
 /// ```
 impl<T: CoordNum> Add for CoordZ<T> {
     type Output = Self;
@@ -170,14 +174,15 @@ impl<T: CoordNum> Add for CoordZ<T> {
 /// # Examples
 ///
 /// ```
-/// use geo_types::coord;
+/// use geo_types_3d::coordZ;
 ///
-/// let p = coord! { x: 1.5, y: 2.5 };
-/// let q = coord! { x: 1.25, y: 2.5 };
+/// let p = coordZ! { x: 1.5, y: 2.5, z: 4.0 };
+/// let q = coordZ! { x: 1.25, y: 2.5, z: 1.0 };
 /// let diff = p - q;
 ///
 /// assert_eq!(diff.x, 0.25);
 /// assert_eq!(diff.y, 0.);
+/// assert_eq!(diff.z, 3.0);
 /// ```
 impl<T: CoordNum> Sub for CoordZ<T> {
     type Output = Self;
@@ -197,13 +202,14 @@ impl<T: CoordNum> Sub for CoordZ<T> {
 /// # Examples
 ///
 /// ```
-/// use geo_types::coord;
+/// use geo_types_3d::coordZ;
 ///
-/// let p = coord! { x: 1.25, y: 2.5 };
+/// let p = coordZ! { x: 1.25, y: 2.5, z: 3.0 };
 /// let q = p * 4.;
 ///
 /// assert_eq!(q.x, 5.0);
 /// assert_eq!(q.y, 10.0);
+/// assert_eq!(q.z, 12.0);
 /// ```
 impl<T: CoordNum> Mul<T> for CoordZ<T> {
     type Output = Self;
@@ -223,13 +229,14 @@ impl<T: CoordNum> Mul<T> for CoordZ<T> {
 /// # Examples
 ///
 /// ```
-/// use geo_types::coord;
+/// use geo_types_3d::coordZ;
 ///
-/// let p = coord! { x: 5., y: 10. };
+/// let p = coordZ! { x: 5., y: 10., z: 15. };
 /// let q = p / 4.;
 ///
 /// assert_eq!(q.x, 1.25);
 /// assert_eq!(q.y, 2.5);
+/// assert_eq!(q.z, 3.75);
 /// ```
 impl<T: CoordNum> Div<T> for CoordZ<T> {
     type Output = Self;
@@ -250,13 +257,14 @@ use num_traits::Zero;
 /// # Examples
 ///
 /// ```
-/// use geo_types::Coord;
+/// use geo_types_3d::CoordZ;
 /// use num_traits::Zero;
 ///
-/// let p: Coord = Zero::zero();
+/// let p: CoordZ = Zero::zero();
 ///
 /// assert_eq!(p.x, 0.);
 /// assert_eq!(p.y, 0.);
+/// assert_eq!(p.z, 0.);
 /// ```
 impl<T: CoordNum> CoordZ<T> {
     #[inline]
@@ -276,7 +284,7 @@ impl<T: CoordNum> Zero for CoordZ<T> {
     }
     #[inline]
     fn is_zero(&self) -> bool {
-        self.x.is_zero() && self.y.is_zero()
+        self.x.is_zero() && self.y.is_zero() && self.z.is_zero()
     }
 }
 
@@ -298,7 +306,7 @@ mod approx_integration {
 
         #[inline]
         fn abs_diff_eq(&self, other: &Self, epsilon: T::Epsilon) -> bool {
-            T::abs_diff_eq(&self.x, &other.x, epsilon) && T::abs_diff_eq(&self.y, &other.y, epsilon)
+            T::abs_diff_eq(&self.x, &other.x, epsilon) && T::abs_diff_eq(&self.y, &other.y, epsilon) && T::abs_diff_eq(&self.z, &other.z, epsilon)
         }
     }
 
@@ -315,6 +323,7 @@ mod approx_integration {
         fn relative_eq(&self, other: &Self, epsilon: T::Epsilon, max_relative: T::Epsilon) -> bool {
             T::relative_eq(&self.x, &other.x, epsilon, max_relative)
                 && T::relative_eq(&self.y, &other.y, epsilon, max_relative)
+                && T::relative_eq(&self.z, &other.z, epsilon, max_relative)
         }
     }
 
@@ -331,6 +340,7 @@ mod approx_integration {
         fn ulps_eq(&self, other: &Self, epsilon: T::Epsilon, max_ulps: u32) -> bool {
             T::ulps_eq(&self.x, &other.x, epsilon, max_ulps)
                 && T::ulps_eq(&self.y, &other.y, epsilon, max_ulps)
+                && T::ulps_eq(&self.z, &other.z, epsilon, max_ulps)
         }
     }
 }

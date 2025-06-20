@@ -126,9 +126,6 @@ pub use geometry::*;
 
 pub use geometry::line_string_z::PointsIter;
 
-#[allow(deprecated)]
-pub use geometry::cube::InvalidRectCoordinatesError;
-
 mod error;
 pub use error::Error;
 
@@ -137,6 +134,8 @@ mod macros;
 
 #[macro_use]
 mod wkt_macro;
+
+pub mod conversion;
 
 #[cfg(feature = "arbitrary")]
 mod arbitrary;

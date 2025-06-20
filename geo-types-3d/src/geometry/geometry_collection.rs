@@ -349,23 +349,23 @@ impl<'a, T: CoordNum> GeometryCollection<T> {
 //     }
 // }
 
-// #[cfg(test)]
-// mod tests {
-//     use alloc::vec;
+#[cfg(test)]
+mod tests {
+    use alloc::vec;
 
-//     use crate::{wkt, GeometryCollection, PointZ};
+    use crate::{wkt, GeometryCollection, PointZ};
 
-//     #[test]
-//     fn from_vec() {
-//         let gc = GeometryCollection::from(vec![PointZ::new(1i32, 2, 3)]);
-//         let p = PointZ::try_from(gc[0].clone()).unwrap();
-//         assert_eq!(p.y(), 2);
-//     }
+    #[test]
+    fn from_vec() {
+        let gc = GeometryCollection::from(vec![PointZ::new(1i32, 2, 3)]);
+        let p = PointZ::try_from(gc[0].clone()).unwrap();
+        assert_eq!(p.y(), 2);
+    }
 
-//     // #[test]
-//     // fn empty() {
-//     //     let empty = GeometryCollection::<f64>::empty();
-//     //     let empty_2 = wkt! { GEOMETRYCOLLECTION EMPTY };
-//     //     assert_eq!(empty, empty_2);
-//     // }
-// }
+    #[test]
+    fn empty() {
+        let empty = GeometryCollection::<f64>::empty();
+        let empty_2 = wkt! { GEOMETRYCOLLECTION EMPTY };
+        assert_eq!(empty, empty_2);
+    }
+}

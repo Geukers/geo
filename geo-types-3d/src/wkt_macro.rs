@@ -122,23 +122,23 @@ macro_rules! wkt_internal {
     };
 
     // GEOMETRYCOLLECTION
-    // (GEOMETRYCOLLECTION EMPTY) => {
-    //     $crate::GeometryCollection::empty()
-    // };
-    // (GEOMETRYCOLLECTION ()) => {
-    //     compile_error!("use `EMPTY` instead of () for an empty collection")
-    // };
-    // (GEOMETRYCOLLECTION ( $( $el_type:tt $el_tt: tt ),* $(,)? )) => {
-    //     $crate::GeometryCollection($crate::_alloc::vec![
-    //        $( $crate::Geometry::from($crate::wkt!($el_type $el_tt)) ),*
-    //     ])
-    // };
-    // (GEOMETRYCOLLECTION $($tail: tt)*) => {
-    //     compile_error!("Invalid GEOMETRYCOLLECTION wkt");
-    // };
-    // ($name: ident ($($tail: tt)*)) => {
-    //     compile_error!("Unknown type. Must be one of POINT Z, LINESTRING Z, POLYGON Z, MULTIPOINT Z, MULTILINESTRING Z, MULTIPOLYGON Z, or GEOMETRYCOLLECTION Z");
-    // };
+    (GEOMETRYCOLLECTION EMPTY) => {
+        $crate::GeometryCollection::empty()
+    };
+    (GEOMETRYCOLLECTION ()) => {
+        compile_error!("use `EMPTY` instead of () for an empty collection")
+    };
+    (GEOMETRYCOLLECTION ( $( $el_type:tt $el_tt: tt ),* $(,)? )) => {
+        $crate::GeometryCollection($crate::_alloc::vec![
+           $( $crate::Geometry::from($crate::wkt!($el_type $el_tt)) ),*
+        ])
+    };
+    (GEOMETRYCOLLECTION $($tail: tt)*) => {
+        compile_error!("Invalid GEOMETRYCOLLECTION wkt");
+    };
+    ($name: ident ($($tail: tt)*)) => {
+        compile_error!("Unknown type. Must be one of POINT Z, LINESTRING Z, POLYGON Z, MULTIPOINT Z, MULTILINESTRING Z, MULTIPOLYGON Z, or GEOMETRYCOLLECTION Z");
+    };
 }
 
 #[cfg(test)]
